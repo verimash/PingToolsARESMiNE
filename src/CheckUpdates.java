@@ -1,33 +1,31 @@
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.*;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.json.JSONObject;
 
-public class CheckUpdates {
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URL;
+
+public final class CheckUpdates {
+
     private static JSONObject getInfoServer() {
         try {
-            URL url = new URL("https://pinghelper.aresstaff.xyz/actualVersion");
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            final URL url = URI.create("https://pinghelper.aresstaff.xyz/actualVersion").toURL();
+            final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
 
-            int responseCode = connection.getResponseCode();
-            if (responseCode == HttpURLConnection.HTTP_OK) {
-                BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                String inputLine;
-                StringBuffer response = new StringBuffer();
+            if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                final var in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 
+                final var response = new StringBuilder();
+
+                String inputLine;
                 while ((inputLine = in.readLine()) != null) {
                     response.append(inputLine);
                 }
                 in.close();
 
-                JSONObject jsonResponse = new JSONObject(response.toString());
-
-                return jsonResponse;
+                return new JSONObject(response.toString());
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -36,17 +34,17 @@ public class CheckUpdates {
         return null;
     }
 
-    public static void execute () {
+    public static void execute() {
         // Текущие настройки
-        String version = "1.0";
-        String dataVerst = "2024-06-08";
+        final String version = "1.0";
+        final String dataVerst = "2024-06-08";
 
         // Полученные данные с сервера
-        JSONObject DataSRV = getInfoServer();
+        final JSONObject DataSRV = getInfoServer();
         if (DataSRV == null) {
 
             // Обработка данных и сборка сообщения
-            String message = " ====================" +
+            final String message = " ====================" +
                     "\n = Разработано \"ARESMiNE #shorts\" (https://t.me/aresmineshorts)" +
                     "\n = Версия: " + version + " (выпущено " + dataVerst + ")" +
                     "\n = При попытке проверить обновление произошла ошибка!" +
@@ -54,10 +52,10 @@ public class CheckUpdates {
             System.out.println(message);
 
         } else {
-            String versionSRV = DataSRV.getString("version");
-            String buildDate = DataSRV.getString("buildDate");
-            String url = DataSRV.getString("url");
-            String urlChanges = DataSRV.getString("urlChanges");
+            final String versionSRV = DataSRV.getString("version");
+            final String buildDate = DataSRV.getString("buildDate");
+            final String url = DataSRV.getString("url");
+            final String urlChanges = DataSRV.getString("urlChanges");
 
             // Обработка данных и сборка сообщения
             String message = " ====================" +
@@ -76,12 +74,5 @@ public class CheckUpdates {
 
             System.out.println(message);
         }
-
-
-
-
-
     }
-
-
 }
